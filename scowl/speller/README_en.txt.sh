@@ -1,16 +1,16 @@
-: ${SCOWL:=..}
+: "${SCOWL:=..}"
 
-echo $WHAT
+printf '%s\n' "$WHAT"
 
-if [ "$SCOWL_VERSION" ] && [ -e $SCOWL/../.git ] > /dev/null; then
+if [ "$SCOWL_VERSION" ] && [ -e "$SCOWL/../.git" ]; then
   echo "Version $SCOWL_VERSION"
-  ( cd $SCOWL/speller && git log --pretty=format:'%cd [%h]' -n 1 -- .. )
+  ( cd "$SCOWL/speller" && git log --pretty=format:'%cd [%h]' -n 1 -- .. )
   echo
-elif [ -e $SCOWL/../.git ] > /dev/null; then
-  ( cd $SCOWL/speller && git log --pretty=format:'%cd [%h]' -n 1 -- .. )
+elif [ -e "$SCOWL/../.git" ]; then
+  ( cd "$SCOWL/speller" && git log --pretty=format:'%cd [%h]' -n 1 -- .. )
   echo
-elif [ -e $SCOWL/VERSION ]; then
-  echo "Generated from SCOWL Version `cat $SCOWL/VERSION`"
+elif [ -e "$SCOWL/VERSION" ]; then
+  echo "Generated from SCOWL Version $(cat "$SCOWL/VERSION")"
   date
   echo
 else
@@ -115,6 +115,6 @@ Ispell copyright is included with the SCOWL copyright.
 
 EOF
 
-cat $SCOWL/Copyright
+cat "$SCOWL/Copyright"
 echo
-echo "Build Date: `date`"
+echo "Build Date: $(date)"

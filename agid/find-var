@@ -18,7 +18,8 @@ open IN, "infl.txt";
 use IPC::Open2;
 my($rdrfh, $wtrfh);
 # Needs aspell 0.60.6 or better.
-$pid = open2($in, $out, '/opt/aspell/bin/aspell soundslike');
+my $aspell = $ENV{ASPELL} || 'aspell';
+$pid = open2($in, $out, $aspell, 'soundslike');
 
 sub get_soundslike($) {
   my ($word) = @_;

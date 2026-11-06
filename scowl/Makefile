@@ -12,6 +12,10 @@ export LANG LC_ALL LC_CTYPE LC_COLLATE
 # Special targets
 #
 
+# Several recipes write multiple lists and bootstrap shared working files.
+# GNU Make versions without grouped targets must not run them concurrently.
+.NOTPARALLEL:
+
 levels := $(shell cat l/levels-list 2> /dev/null)
 
 programs := src/deaccent src/find-accented
@@ -24,13 +28,13 @@ all: $(foreach l, $(levels), final/english-words.$(l)) \
 .PHONY: clean
 clean:
 	rm -f working/* $(programs) r/varcon/*.lst r/varcon/variant.tab r/mwords/*.lst r/alt12dicts/*.lst r/ispell/all.* r/pos/word.lst r/uk-freq-class/uk.?? r/census/*.lst debug/*
-	make -C speller clean
+	$(MAKE) -C speller clean
 
 #
 # README
 #
 
-README: src/make-README $(foreach l, $(levels), final/english-words.$(l))
+README: README.in src/make-README $(foreach l, $(levels), final/english-words.$(l))
 	src/make-README
 
 #
@@ -205,8 +209,8 @@ r/uk-freq-class/uk.%: src/proc-uk-freq-class
 # Special programs creation
 #
 
-$(programs): src/%: src/%.cc
-	cd src && make $*
+$(programs): src/%: src/%.cc src/deaccent.hh
+	$(MAKE) -C src $*
 
 #
 # Level information
@@ -222,17 +226,18 @@ l/levels-list: l/levels
 Makefile: l/levels-list
 
 deps: .symbolic-deps
-.symbolic-deps: $(shell find l -type d)
+.symbolic-deps: src/make-symbolic-deps $(shell find l -type d)
 	src/make-symbolic-deps
 -include .symbolic-deps
 
 #
 # Sanity checks and related
 #
-scowl.db: final/*
-	-rm scowl.db
+scowl.db: final/* sql/create.sh sql/create.sql sql/to-sql.pl \
+  sql/speller.sql sql/speller.pl sql/speller-post.sql
+	rm -f scowl.db
 	sql/create.sh
 
 test: scowl.db
-	make -C speller hunspell
+	$(MAKE) -C speller hunspell
 	sql/test

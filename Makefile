@@ -2,7 +2,7 @@
 all: prep scowl
 
 .PHONY: scowl
-scowl:
+scowl: prep
 	$(MAKE) -C scowl
 
 .PHONY: clean
@@ -45,12 +45,12 @@ prep: .dirs .enable .enable-sup .ukacd .yawl .mwords .census .uk-freq-class
 	gunzip -c other/wlist.html.gz > uk-freq-class/wlist.html
 	touch .uk-freq-class
 
-.PHONE: test
+.PHONY: test
 test: scowl_test varcon_test
 
 .PHONY: scowl_test
 scowl_test: scowl
-	make -C scowl test
+	$(MAKE) -C scowl test
 
 .PHONY: varcon_test
 varcon_test:

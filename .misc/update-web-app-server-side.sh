@@ -1,9 +1,11 @@
+#!/bin/sh
+
 set -v
 set -e
 
 cd /opt/app
 rm -rf wordlist-old wordlist-tmp
-cp -a wordlist/ wordlist-tmp
+cp -pPR wordlist wordlist-tmp
 cd wordlist-tmp/
 git reset --hard
 git clean -xfd

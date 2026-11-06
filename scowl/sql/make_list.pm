@@ -97,7 +97,7 @@ sub make_query( $ ) {
 sub get_wordlist( $$ ) {
     my ($db,$parms) = (@_);
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db","","");
-    $dbh->{unicode} = 1;
+    $dbh->{sqlite_unicode} = 1;
     my ($query,@bind_values) = make_query($parms);
     #print "$query  w/ @bind_values\n";
     dump_parms($parms);
@@ -122,6 +122,22 @@ sub dict_name ( $ ) {
     else     {return "en-custom";}
 }
 
+sub write_speller_input {
+    my ($script, $words, @args) = @_;
+    my $pid = open my $pipe, '|-';
+    die "Unable to start $script: $!" unless defined $pid;
+    if ($pid == 0) {
+        open STDOUT, '>', '/dev/null' or die "Unable to redirect output: $!";
+        exec {$script} $script, @args;
+        die "Unable to execute $script: $!";
+    }
+    binmode($pipe, ':encoding(iso88591)');
+    foreach (@$words) {
+        print {$pipe} "$_\n" or die "Unable to write to $script: $!";
+    }
+    close $pipe or die "$script failed (status $?)";
+}
+
 sub make_hunspell_dict ( $$$ ) {
     use File::Temp 'tempdir';
     use POSIX 'getcwd';
@@ -135,12 +151,8 @@ sub make_hunspell_dict ( $$$ ) {
     close F;
     $ENV{SCOWL} = $cwd unless defined $ENV{SCOWL};
     undef $ENV{SCOWL_VERSION};
-    open F, "| $ENV{SCOWL}/speller/make-hunspell-dict -one $name parms.txt > /dev/null" or die;
-    binmode(F, ':encoding(iso88591)');
-    foreach (@$words) {
-        print F "$_\n";
-    }
-    close F or die "make-hunspell-dict failed";
+    write_speller_input("$ENV{SCOWL}/speller/make-hunspell-dict", $words,
+                        '-one', $name, 'parms.txt');
     chdir $cwd;
     return "$dir/hunspell-$name.zip";
 }
@@ -156,13 +168,8 @@ sub make_aspell_dict ( $$$ ) {
     print F dump_parms($parms, '  ');
     close F;
     $ENV{SCOWL} = $cwd unless defined $ENV{SCOWL};
-    $git_ver =~ /^([^\']+)$/ or die;
-    open F, "| $ENV{SCOWL}/speller/make-aspell-custom '$1' parms.txt > /dev/null" or die;
-    binmode(F, ':encoding(iso88591)');
-    foreach (@$words) {
-        print F "$_\n";
-    }
-    close F or die "make-aspell-custom failed";
+    write_speller_input("$ENV{SCOWL}/speller/make-aspell-custom", $words,
+                        $git_ver, 'parms.txt');
     chdir $cwd;
     return "$dir/aspell6-en-custom.tar.bz2";
 }

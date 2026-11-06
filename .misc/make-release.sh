@@ -1,3 +1,5 @@
+#!/bin/sh
+
 set -e
 set -x
 
@@ -7,11 +9,14 @@ set -x
 #Define SCOWL_VERSION
 #Define PREV_VERSION
 
-if [ -z "$SCOWL_VERSION" -o -z "$PREV_VERSION" ]
+if [ -z "$SCOWL_VERSION" ] || [ -z "$PREV_VERSION" ]
 then
-  echo 'define $PREV_VERSION and $SCOWL_VERSION'
+  echo 'define PREV_VERSION and SCOWL_VERSION'
   exit 1
 fi
+
+export SCOWL_VERSION
+export COPYFILE_DISABLE=1
 
 test -e git/.git
 test -e git/scowl/README.in
@@ -25,14 +30,14 @@ test -e git/scowl/README.in
 
 #AGID:
   cd agid
-if [ -n "`git rev-list rel-$PREV_VERSION..HEAD .`" ]
+if [ -n "$(git rev-list "rel-$PREV_VERSION..HEAD" .)" ]
 then
   git clean -xf .
   cd ..
-  cp -a agid stage/agid-$SCOWL_VERSION
+  cp -pPR agid "stage/agid-$SCOWL_VERSION"
   cd stage
-  zip -q9rl agid-$SCOWL_VERSION.zip agid-$SCOWL_VERSION/
-  tar cfz agid-$SCOWL_VERSION.tar.gz agid-$SCOWL_VERSION/
+  zip -q9rl "agid-$SCOWL_VERSION.zip" "agid-$SCOWL_VERSION/"
+  tar -czf "agid-$SCOWL_VERSION.tar.gz" "agid-$SCOWL_VERSION/"
   cd ..
 else
   cd ..
@@ -41,14 +46,14 @@ fi
 
 #VarCon
   cd varcon
-if [ -n "`git rev-list rel-$PREV_VERSION..HEAD .`" ]
+if [ -n "$(git rev-list "rel-$PREV_VERSION..HEAD" .)" ]
 then
   git clean -xf .
   cd ..
-  cp -a varcon stage/varcon-$SCOWL_VERSION
+  cp -pPR varcon "stage/varcon-$SCOWL_VERSION"
   cd stage
-  zip -q9rl varcon-$SCOWL_VERSION.zip varcon-$SCOWL_VERSION/
-  tar cfz varcon-$SCOWL_VERSION.tar.gz varcon-$SCOWL_VERSION/
+  zip -q9rl "varcon-$SCOWL_VERSION.zip" "varcon-$SCOWL_VERSION/"
+  tar -czf "varcon-$SCOWL_VERSION.tar.gz" "varcon-$SCOWL_VERSION/"
   cd ..
 else
   cd ..
@@ -57,14 +62,14 @@ fi
 
 #Alt12Dicts:
   cd alt12dicts
-if [ -n "`git rev-list rel-$PREV_VERSION..HEAD .`" ]
+if [ -n "$(git rev-list "rel-$PREV_VERSION..HEAD" .)" ]
 then
   git clean -xf .
   cd ..
-  cp -a alt12dicts stage/alt12dicts-$SCOWL_VERSION
+  cp -pPR alt12dicts "stage/alt12dicts-$SCOWL_VERSION"
   cd stage
-  zip -q9rl alt12dicts-$SCOWL_VERSION.zip alt12dicts-$SCOWL_VERSION/
-  tar cfz alt12dicts-$SCOWL_VERSION.tar.gz alt12dicts-$SCOWL_VERSION/
+  zip -q9rl "alt12dicts-$SCOWL_VERSION.zip" "alt12dicts-$SCOWL_VERSION/"
+  tar -czf "alt12dicts-$SCOWL_VERSION.tar.gz" "alt12dicts-$SCOWL_VERSION/"
   cd ..
 else
   cd ..
@@ -73,15 +78,15 @@ fi
 
 #SCOWL:
   cd scowl
-  src/make-dist $SCOWL_VERSION
-  mv scowl-$SCOWL_VERSION* ../stage
+  src/make-dist "$SCOWL_VERSION"
+  mv scowl-"$SCOWL_VERSION" scowl-"$SCOWL_VERSION".tar.gz scowl-"$SCOWL_VERSION".zip ../stage
   cd ..
 
 #Speller:
   cd scowl/speller
   make aspell hunspell
   cd aspell
-  ln -s ../../../../aspell-lang/proc
+  ln -s ../../../../aspell-lang/proc .
   ./proc
   ./configure
   make dist

@@ -1,5 +1,5 @@
 Spell Checking Oriented Word Lists (SCOWL)
-@`if [ "$SCOWL_VERSION" ]; then echo -n "Version $SCOWL_VERSION"; fi`
+@`if [ "$SCOWL_VERSION" ]; then printf 'Version %s' "$SCOWL_VERSION"; fi`
 @`git log --pretty=format:'%cd [%h]' -n 1 --`
 by Kevin Atkinson (kevina@gnu.org)
 

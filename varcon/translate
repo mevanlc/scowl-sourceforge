@@ -1,4 +1,4 @@
-#!/usr/bin/perl -C 0
+#!/usr/bin/perl -C0
 
 use lib '.';
 use varcon;

@@ -18,15 +18,6 @@ cr_AZ='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 cr_09='0123456789'
 cr_alnum=$cr_az$cr_AZ$cr_09
 
-# also taken form autoconf
-case `echo "testing\c"; echo 1,2,3`,`echo -n testing; echo 1,2,3` in
-  *c*,-n*) ECHO_N= ECHO_C='
-' ECHO_T='	' ;;
-  *c*,*  ) ECHO_N=-n ECHO_C= ECHO_T= ;;
-  *)       ECHO_N= ECHO_C='\c' ECHO_T= ;;
-esac
-
-
 mode=none
 for option
 do
@@ -44,12 +35,12 @@ do
       optarg=`expr "x$option" : 'x[^=]*=\(.*\)'`
       # Reject names that are not valid shell variable names.
       expr "x$envvar" : ".*[^_$cr_alnum]" >/dev/null &&
-        { echo "$as_me: error: invalid variable name: $envvar" >&2
+        { echo "$0: error: invalid variable name: $envvar" >&2
       { (exit 1); exit 1; }; }
       #echo $envvar $optarg
       optarg=`echo "$optarg" | sed "s/'/'\\\\\\\\''/g"`
       eval "$envvar='$optarg'"
-      export $envvar
+      export "${envvar?}"
       ;;
     --help)
       echo "Usage: ./configure [--help | --vars VAR1=VAL1 ...]"
@@ -68,18 +59,19 @@ if test x = "x$ASPELL"
   then ASPELL=aspell; fi
 if test x = "x$PREZIP"
   then PREZIP=prezip-bin; fi
-ASPELL=`which $ASPELL`
+ASPELL=$(command -v "$ASPELL") || exit 1
+PREZIP=$(command -v "$PREZIP") || exit 1
 
-echo $ECHO_N "Finding Dictionary file location ... $ECHO_C"
-dictdir=`$ASPELL dump config dict-dir`
-echo $dictdir
+printf '%s' 'Finding Dictionary file location ... '
+dictdir=$("$ASPELL" dump config dict-dir) || exit 1
+printf '%s\n' "$dictdir"
 
-echo $ECHO_N "Finding Data file location ... $ECHO_C"
-datadir=`$ASPELL dump config data-dir`
-echo $datadir
+printf '%s' 'Finding Data file location ... '
+datadir=$("$ASPELL" dump config data-dir) || exit 1
+printf '%s\n' "$datadir"
 
-echo $ECHO_N "Testing if an English dictionary is already installed ... $ECHO_C"
-if $ASPELL create master --lang=en ./en-test.rws < /dev/null > /dev/null 2>&1
+printf '%s' 'Testing if an English dictionary is already installed ... '
+if "$ASPELL" create master --lang=en ./en-test.rws < /dev/null > /dev/null 2>&1
 then
   echo yes
   HAVE_LANG_FILES=yes
@@ -92,11 +84,11 @@ rm -f en-test.rws
 
 echo "ASPELL = $ASPELL" > Makefile
 echo "ASPELL_FLAGS = $ASPELL_FLAGS" >> Makefile
-echo "PREZIP = `which $PREZIP`" >> Makefile
+echo "PREZIP = $PREZIP" >> Makefile
 echo "DESTDIR = $DESTDIR" >> Makefile
 echo "dictdir = $dictdir" >> Makefile
 echo "datadir = $datadir" >> Makefile
-echo "name    = $name"    >> Makefile
+echo "name    = ${name-}" >> Makefile
 if test "$HAVE_LANG_FILES" = no; then
 echo                         >> Makefile
 echo "NEED_LANG_FILES = yes" >> Makefile

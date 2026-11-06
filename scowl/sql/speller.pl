@@ -9,7 +9,7 @@ sub deaccent($) {
 }
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=scowl.db","","");
-$dbh->{unicode} = 1;
+$dbh->{sqlite_unicode} = 1;
 $dbh->{RaiseError} = 1;
 $dbh->{AutoCommit} = 0;
 

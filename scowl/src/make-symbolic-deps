@@ -1,7 +1,9 @@
 #!/bin/sh
 
-find l/ -printf "%p %l\n" \
-  | sed -n 's/\([^ ]*\).*\/\(r\/.*\)/\1: \2/p' \
-  > .symbolic-deps
-
-
+find l/ -type l -exec perl -e '
+  for my $path (@ARGV) {
+    my $target = readlink $path;
+    die "readlink $path: $!\n" unless defined $target;
+    print "$path: $1\n" if $target =~ m{.*/(r/.*)};
+  }
+' {} + > .symbolic-deps

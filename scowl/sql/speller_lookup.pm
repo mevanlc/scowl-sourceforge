@@ -15,7 +15,7 @@ sub lookup($$@) {
     my ($db,$dict,@words) = @_;
 
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db","","");
-    $dbh->{unicode} = 1;
+    $dbh->{sqlite_unicode} = 1;
 
     $dbh->do("create temporary table to_lookup (word, word_lower)");
     my $add_word = $dbh->prepare("insert into to_lookup values (?,?)");

@@ -18,7 +18,7 @@ create table lists (
   unique (spelling, category, size)
 );
 
-.separator \t
+.mode tabs
 .import working/lists.tab lists
 .import working/words.tab words_l
 

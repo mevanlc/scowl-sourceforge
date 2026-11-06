@@ -1,9 +1,10 @@
+CXXFLAGS ?= -O
 
 %: %.cc
-	g++ -O $*.cc -o $*
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LDLIBS)
 
-deaccent: deaccent.cc
-find-accented: find-accented.cc
+deaccent: deaccent.cc deaccent.hh
+find-accented: find-accented.cc deaccent.hh
 
 
 

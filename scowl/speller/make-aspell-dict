@@ -14,7 +14,7 @@ SIZE=60
 
 if [ "$SCOWL_VERSION" ]; then
   true
-elif git status 2>&1 > /dev/null; then
+elif git status > /dev/null 2>&1; then
   SCOWL_VERSION="`git log --pretty=format:'%cd-%h' --date=short -n 1 -- ..`"
 else
   SCOWL_VERSION=unknown

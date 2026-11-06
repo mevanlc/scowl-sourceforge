@@ -3,19 +3,22 @@
 set -e
 
 GIT_VER=$1
-PARMS_FILE=`pwd`/$2
+case $2 in
+  /*) PARMS_FILE=$2 ;;
+  *) PARMS_FILE=$(pwd)/$2 ;;
+esac
 
-SCOWL=${SCOWL:-`pwd`}
+SCOWL=$(cd "${SCOWL:-.}" && pwd)
 
 rm -rf aspell6-en-custom
-cp -a $SCOWL/speller/aspell-custom aspell6-en-custom
+cp -pPR "$SCOWL/speller/aspell-custom" aspell6-en-custom
 cd aspell6-en-custom
 . README.in.sh > README
 rm README.in.sh
 mkdir lang
-cp -a $SCOWL/speller/aspell/{en.dat,en_affix.dat,en_phonet.dat} lang/
+cp -p "$SCOWL"/speller/aspell/{en.dat,en_affix.dat,en_phonet.dat} lang/
 mkdir doc
-cp -a $SCOWL/README doc/SCOWL-README
+cp -p "$SCOWL/README" doc/SCOWL-README
 
 cat > en-custom.wl
 

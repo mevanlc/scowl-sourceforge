@@ -1,58 +1,58 @@
-
+#!/bin/sh
 set -e
 set -x
 
-if [ -z "$SCOWL_VERSION" -o -z "$PREV_VERSION" ]
+if [ -z "$SCOWL_VERSION" ] || [ -z "$PREV_VERSION" ]
 then
-  echo 'define $PREV_VERSION and $SCOWL_VERSION'
+  echo 'define PREV_VERSION and SCOWL_VERSION'
   exit 1
 fi
 
 ( cd git-fr
-  git tag -f rel-$SCOWL_VERSION )
+  git tag -f "rel-$SCOWL_VERSION" )
 
 test ! -e release-bk
 test -e release
-cp -al release release-bk
+cp -pPR release release-bk
 
-if [ -e git-fr/stage/agid-$SCOWL_VERSION.zip ]
+if [ -e "git-fr/stage/agid-$SCOWL_VERSION.zip" ]
 then
-  mkdir release/AGID/$SCOWL_VERSION
-  cp git-fr/stage/agid-$SCOWL_VERSION.zip git-fr/stage/agid-$SCOWL_VERSION.tar.gz \
-     release/AGID/$SCOWL_VERSION
-  cp git-fr/stage/agid-$SCOWL_VERSION/README release/AGID/$SCOWL_VERSION
+  mkdir "release/AGID/$SCOWL_VERSION"
+  cp "git-fr/stage/agid-$SCOWL_VERSION.zip" "git-fr/stage/agid-$SCOWL_VERSION.tar.gz" \
+     "release/AGID/$SCOWL_VERSION"
+  cp "git-fr/stage/agid-$SCOWL_VERSION/README" "release/AGID/$SCOWL_VERSION"
 else
-  ( cd release/AGID; ln -s $PREV_VERSION $SCOWL_VERSION)
+  ( cd release/AGID; ln -s "$PREV_VERSION" "$SCOWL_VERSION")
 fi
 
-if [ -e git-fr/stage/varcon-$SCOWL_VERSION.zip ]
+if [ -e "git-fr/stage/varcon-$SCOWL_VERSION.zip" ]
 then
-  mkdir release/VarCon/$SCOWL_VERSION
-  cp git-fr/stage/varcon-$SCOWL_VERSION.zip git-fr/stage/varcon-$SCOWL_VERSION.tar.gz \
-     release/VarCon/$SCOWL_VERSION
-  cp git-fr/stage/varcon-$SCOWL_VERSION/README release/VarCon/$SCOWL_VERSION
+  mkdir "release/VarCon/$SCOWL_VERSION"
+  cp "git-fr/stage/varcon-$SCOWL_VERSION.zip" "git-fr/stage/varcon-$SCOWL_VERSION.tar.gz" \
+     "release/VarCon/$SCOWL_VERSION"
+  cp "git-fr/stage/varcon-$SCOWL_VERSION/README" "release/VarCon/$SCOWL_VERSION"
 else
-  ( cd release/VarCon; ln -s $PREV_VERSION $SCOWL_VERSION)
+  ( cd release/VarCon; ln -s "$PREV_VERSION" "$SCOWL_VERSION")
 fi
 
-if [ -e git-fr/stage/alt12dicts-$SCOWL_VERSION.zip ]
+if [ -e "git-fr/stage/alt12dicts-$SCOWL_VERSION.zip" ]
 then
-  mkdir release/Alt12Dicts/$SCOWL_VERSION
-  cp git-fr/stage/alt12dicts-$SCOWL_VERSION.zip git-fr/stage/alt12dicts-$SCOWL_VERSION.tar.gz \
-     release/Alt12Dicts/$SCOWL_VERSION
-  cp git-fr/stage/alt12dicts-$SCOWL_VERSION/README release/Alt12Dicts/$SCOWL_VERSION
+  mkdir "release/Alt12Dicts/$SCOWL_VERSION"
+  cp "git-fr/stage/alt12dicts-$SCOWL_VERSION.zip" "git-fr/stage/alt12dicts-$SCOWL_VERSION.tar.gz" \
+     "release/Alt12Dicts/$SCOWL_VERSION"
+  cp "git-fr/stage/alt12dicts-$SCOWL_VERSION/README" "release/Alt12Dicts/$SCOWL_VERSION"
 else
-  ( cd release/Alt12Dicts; ln -s $PREV_VERSION $SCOWL_VERSION)
+  ( cd release/Alt12Dicts; ln -s "$PREV_VERSION" "$SCOWL_VERSION")
 fi
 
-mkdir release/SCOWL/$SCOWL_VERSION
-cp git-fr/stage/scowl-$SCOWL_VERSION.zip git-fr/stage/scowl-$SCOWL_VERSION.tar.gz \
-   release/SCOWL/$SCOWL_VERSION
-cp git-fr/stage/scowl-$SCOWL_VERSION/README release/SCOWL/$SCOWL_VERSION
+mkdir "release/SCOWL/$SCOWL_VERSION"
+cp "git-fr/stage/scowl-$SCOWL_VERSION.zip" "git-fr/stage/scowl-$SCOWL_VERSION.tar.gz" \
+   "release/SCOWL/$SCOWL_VERSION"
+cp "git-fr/stage/scowl-$SCOWL_VERSION/README" "release/SCOWL/$SCOWL_VERSION"
 
-mkdir release/speller/$SCOWL_VERSION
-cp git-fr/scowl/speller/hunspell/*  release/speller/$SCOWL_VERSION
-cp git-fr/scowl/speller/aspell/*.tar.bz2 release/speller/$SCOWL_VERSION
+mkdir "release/speller/$SCOWL_VERSION"
+cp git-fr/scowl/speller/hunspell/* "release/speller/$SCOWL_VERSION"
+cp git-fr/scowl/speller/aspell/*.tar.bz2 "release/speller/$SCOWL_VERSION"
 
 set +x
 cat <<EOF

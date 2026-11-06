@@ -3,54 +3,68 @@
 # Make the final release from a clean git checkout to avoid including
 # unnecessary garbage!
 
+set -e
+
 if [ "$#" -ne 1 ]; then
   echo "Usage: $0 VERSION"
   exit 1
 fi
 
+case $1 in
+  ''|*[!A-Za-z0-9._-]*)
+    echo "Invalid version: $1" >&2
+    exit 1
+    ;;
+esac
+
+dist="scowl-$1"
+# Prevent macOS tar from adding AppleDouble metadata files to releases.
+export COPYFILE_DISABLE=1
+
 echo clean
 
 make -s clean
 
-rm -rf scowl-$1
-rm -f scowl-$1.*
+rm -rf "$dist"
+rm -f "$dist.tar" "$dist.tar.gz" "$dist.zip"
 
 echo levels
 
-rm l/levels-list 2> /dev/null
-ls --full-time -R -F l | sed 's/^.*kevina.*[-+]0... /  /' | sed '/total/d' > l.dir
+rm -f l/levels-list
+LC_ALL=C ls -lR l > l.dir
 tar -c -f l.tar l/
 
 echo copy
 
-mkdir scowl-$1
+mkdir "$dist"
  
-mkdir scowl-$1/r/
-cp r/README scowl-$1/r/
-cp -a r/special scowl-$1/r/
+mkdir "$dist/r"
+cp -p r/README "$dist/r/"
+cp -pPR r/special "$dist/r/"
 
-BASE=`pwd`
-
-cd r/
-for d in `ls -I README -I special -I ATTIC`
+for source in r/*
 do
-  echo ... r/$d
-  cd $d
-  mkdir $BASE/scowl-$1/r/$d/
-  cp `cat .keep` $BASE/scowl-$1/r/$d/
-  cd $BASE/r
+  case $source in
+    r/README|r/special|r/ATTIC) continue ;;
+  esac
+  [ -d "$source" ] || continue
+  echo "... $source"
+  mkdir "$dist/$source"
+  while IFS= read -r file || [ -n "$file" ]; do
+    [ -n "$file" ] || continue
+    cp -p "$source/$file" "$dist/$source/"
+  done < "$source/.keep"
 done
-cd ..
 
-cp -a README README.in Makefile mk-list Copyright l.dir l.tar src final misc speller scowl-$1/
-echo $1 > scowl-$1/VERSION
+cp -pPR README README.in Makefile mk-list Copyright l.dir l.tar src final misc speller "$dist/"
+printf '%s\n' "$1" > "$dist/VERSION"
 
 echo tar
-tar cf scowl-$1.tar scowl-$1/
-gzip -9 scowl-$1.tar
+tar -cf "$dist.tar" "$dist/"
+gzip -9 "$dist.tar"
 
 echo zip
-cd scowl-$1
+cd "$dist"
 rm speller/final speller/misc speller/src
-zip -q9lr ../scowl-$1.zip *
+zip -q9lr "../$dist.zip" -- *
 

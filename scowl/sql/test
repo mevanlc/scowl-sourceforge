@@ -3,7 +3,9 @@
 set -e
 set -x
 
-LC_ALL=C.UTF-8
+# The Perl SQL tools select UTF-8 explicitly; do not require a locale
+# name that is not available on all Unix systems.
+export LC_ALL=C
 
 make -C speller hunspell
 
